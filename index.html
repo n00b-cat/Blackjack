@@ -10,9 +10,13 @@
 
 <body>
     <canvas id="canvas" width="800" height="600"></canvas>
-    <button onclick="card_shuffle()">Shuffle deck</button>
-    <button onclick="deal_cards()">give players cards</button>
     
+    <div class="flex">
+        <button onclick="card_shuffle()">Shuffle deck</button>
+        <button onclick="deal_cards()">give players cards</button>
+    </div>
+
+    <script src="/socket.io/socket.io.js"></script>
     <script src="js/deck.js"></script>
     <script src="js/game.js"></script>
 </body>

@@ -1,0 +1,13 @@
+#canvas {
+    background-color: rgb(9, 90, 9);
+    image-rendering: pixelated;
+}
+
+.column {
+    display: flex;
+    flex-direction: column;;
+}
+
+.flex {
+    display: flex;;
+}

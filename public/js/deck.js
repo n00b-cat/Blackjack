@@ -3,7 +3,7 @@ const suits = ["heart", "spade", "clower", "diamond"]
 let deck = []
 
 class Card {
-    constructor(suit, number,x, y) {
+    constructor(suit, number, x, y) {
         this.suit = suit;
         this.number = number;
         this.x = x;
@@ -11,17 +11,26 @@ class Card {
         this.width = 55;
         this.height = 76;
         this.image = new Image();
-        this.image.src = "sprites/"+this.suit+".png";
-        this.image.onload = () => {}
+        this.image.src = "sprites/" + this.suit + ".png";
+        this.image.onload = () => { }
     }
 
     draw(ctx) {
         ctx.drawImage(this.image, (this.number - 1) * 55 + (this.number - 1), 0, this.width, this.height, this.x, this.y, this.width, this.height);
     }
 
-    clickcard(xmouse, ymouse) {
+    clickcard(xmouse, ymouse, playerhand) {
         if (xmouse > this.x && xmouse < this.x + this.width && ymouse > this.y && ymouse < this.y + this.height) {
-            console.log("played: " + this.suit + " " + this.number);
+            const index = playerhand.indexOf(this);
+
+            if (table.length > 0) {
+                if (table.slice(-1)[0].number <= this.number) {
+                    placedcard(this, index);
+                }
+            }
+            else {
+                placedcard(this, index);
+            }
         }
     }
 }
