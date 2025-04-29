@@ -1,6 +1,8 @@
 #canvas {
     background-color: rgb(9, 90, 9);
     image-rendering: pixelated;
+    width: 80%;
+    height: 80%;
 }
 
 .column {

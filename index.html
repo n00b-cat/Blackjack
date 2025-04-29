@@ -10,14 +10,22 @@
 
 <body>
     <canvas id="canvas" width="800" height="600"></canvas>
-    
+
     <div class="flex">
-        <button onclick="card_shuffle()">Shuffle deck</button>
-        <button onclick="deal_cards()">give players cards</button>
+        <div>Bet amount: </div>
+        <input id="amount" type="number">
+        <button id="bet">Bet</button>
+    </div>
+
+    <div class="flex">
+        <button id="hit">Hit</button>
+        <button id="stand">Stand</button>
+        <button id="double">Double</button>
+        <button id="split">split</button>
     </div>
 
     <script src="/socket.io/socket.io.js"></script>
-    <script src="js/deck.js"></script>
+    <script src="js/classes.js"></script>
     <script src="js/game.js"></script>
 </body>
 

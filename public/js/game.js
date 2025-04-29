@@ -1,33 +1,32 @@
 // player table
 
-let players = {};
-let turn = null
-
 class player {
-    constructor({name, hand}) {
+    constructor({ name, hand = [], chips, bet }) {
         this.name = name;
         this.hand = hand;
+        this.chips = chips;
+        this.bet = bet;
     }
 }
+
+let players = {};
 
 const socket = io();
 
 socket.on('updatePlayers', (serverplayers) => {
-    console.log(serverplayers)
     for (const id in serverplayers) {
         const serverplayer = serverplayers[id];
 
         if (!players[id]) {
             players[id] = new player(
-                {name: serverplayer.name, hand: serverplayer.hand});
+                { name: serverplayer.name, hand: serverplayer.hand, bet: serverplayer.bet, chips: serverplayer.chips }
+            );
         }
-    }
-
-    console.log(Object.keys(serverplayers).length)
-
-    if (Object.keys(serverplayers).length > 3) {
-        const firstPlayerId = Object.keys(players)[0];
-        turn = players[firstPlayerId];
+        else { 
+            players[id].bet = serverplayer.bet;
+            players[id].chips = serverplayer.chips;
+            players[id].hand = serverplayer.hand;
+        }
     }
 
     for (const id in players) {
@@ -35,56 +34,60 @@ socket.on('updatePlayers', (serverplayers) => {
             delete players[id];
         }
     }
-    console.log(players);
 });
 
+let timer = "..."
+let turn = null
 
-let table = []
-let lastplaced = null
+socket.on('update', (update) => {
+    turn = update.serverturn;
+    timer = update.servertime;
+});
+
+document.getElementById("bet").addEventListener("click", () => {
+    if (!players[socket.id]) return;
+    const bet = document.getElementById("amount").value;
+    socket.emit("bet", bet)
+});
 
 // canvas
 const canvas = document.getElementById("canvas");
 const ctx = canvas.getContext("2d");
 
-canvas.width = window.innerWidth - 200;
-canvas.height = window.innerHeight - 200;
+const devicepixelratio = window.devicePixelRatio || 1;
+
+canvas.width = innerWidth * devicepixelratio;
+canvas.height = innerHeight * devicepixelratio;
 
 window.addEventListener("resize", () => {
-    canvas.width = window.innerWidth - 200;
-    canvas.height = window.innerHeight - 200;
+    canvas.width = innerWidth * devicepixelratio;
+    canvas.height = innerHeight * devicepixelratio;
 });
 
-function placedcard(card, index) {
-    console.log(players.indexOf(turn) + 1)
-    turn = players[ + 1]
-    console.log("played: " + card.suit + " " + card.number);
-    table.push(card);
-    player.hand.splice(index, 1);
-}
+const hit = document.getElementById("hit");
+const stand = document.getElementById("stand");
+const double = document.getElementById("double");
+const split = document.getElementById("split");
 
-// Card distribution
-function deal_cards() {
-    players.forEach(player => {
-        player.hand = []
-    })
-
-    for (let i = 0; i < deck.length; i++) {
-        players[i % players.length].hand.push(deck[i])
-    }
-}
-
-canvas.addEventListener("click", (event) => {
-    const mouseX = event.clientX;
-    const mouseY = event.clientY;
-
-    for (let card of player.hand) {
-        card.clickcard(mouseX, mouseY, player.hand, turn);
-    }
+hit.addEventListener("click", () => {
+    if (!turn || !players[socket.id]) return;
+    socket.emit("action", "hit")
 });
 
-// updating game
-function update() {
-}
+stand.addEventListener("click", () => {
+    if (!turn || !players[socket.id]) return;
+    socket.emit("action", "stand")
+});
+
+double.addEventListener("click", () => {
+    if (!turn || !players[socket.id]) return;
+    socket.emit("action", "double")
+});
+
+split.addEventListener("click", () => {
+    if (!turn || !players[socket.id]) return;
+    socket.emit("action", "split")
+});
 
 // visualsing game fr
 function draw() {
@@ -95,40 +98,31 @@ function draw() {
 
     ctx.clearRect(0, 0, canvas.width, canvas.height);
 
-    let yOffset = 80;
+    let yOffset = 50;
     for (const id in players) {
         const player = players[id];
         ctx.fillText(player.name, 60, yOffset);
-        ctx.fillText("Cards: " + player.hand.length, 60, yOffset + 25);
-        yOffset += 80;
+        ctx.fillText("chips: " + player.chips, 60, yOffset + 25);
+        ctx.fillText("bet: " + player.bet, 60, yOffset + 50);
+        for (let x = 0; x < player.hand.length; x++) {
+            let card = new Card(player.hand[x].suit, player.hand[x].number, 10 + x * 60, canvas.height - 140);
+            card.x = 10 + x * 60;
+            card.y = yOffset + card.height + 25;
+            card.draw(ctx);
+        }
+        yOffset += 220;
     }
 
-    // for (let y = 0; y < players.length; y++) {
-    //     if (y === players.indexOf(player)) {
-    //         for (let x = 0; x < players[y].hand.length; x++) {
-    //             let card = players[y].hand[x]
-    //             card.x = 10 + x * 60;
-    //             card.y = canvas.height - 140;
-    //             card.draw(ctx);
-    //         }
-    //     }
-    // }
-    if (turn) {
-        ctx.fillText("Turn: " + turn.name, canvas.width / 2, 25);
+    if (turn == null) {
+        ctx.fillText("Waiting for bets", canvas.width / 2, 25);
     } else {
-        ctx.fillText("waiting for game to start...", canvas.width / 2, 25);
+        ctx.fillText(turn + "'s turn", canvas.width / 2, 25);
     }
-
-
-    if (table.length > 0) {
-        let tablecard = new Card(table.slice(-1)[0].suit, table.slice(-1)[0].number, canvas.width / 2 - 27, canvas.height / 2 - 38);
-        tablecard.draw(ctx);
-    }
+    ctx.fillText("time left: " + timer, canvas.width / 2, 50);
 }
 
 // game loop / loop
 function gameloop() {
-    update();
     draw();
     window.requestAnimationFrame(gameloop);
 }
