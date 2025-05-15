@@ -1,3 +1,13 @@
+const username = localStorage.getItem("user")
+if (username) {
+    window.addEventListener("load", () => {
+        window.location = "/"
+    });
+}
+
+
+console.log(localStorage.getItem("user"))
+
 async function OnLogin(e) {
     e.preventDefault();
 
@@ -16,7 +26,8 @@ async function OnLogin(e) {
 
     const result = await res.json();
     if (result.success) {
-        document.getElementById("LoginMsg").innerHTML = "Login as: " + result.user.Username
+        localStorage.setItem("user", result.user.Username)
+        window.location = "/"
     }
     else {
         document.getElementById("LoginMsg").innerHTML = result.message
@@ -42,7 +53,8 @@ async function OnSignup(e) {
 
     const result = await res.json();
     if (result.success) {
-        document.getElementById("SingupMsg").innerHTML = "Created new user: " + result.user.Username
+        localStorage.setItem("user", result.user.Username)
+        window.location = "/"
     }
     else {
         document.getElementById("SingupMsg").innerHTML = result.message

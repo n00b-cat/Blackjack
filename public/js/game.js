@@ -1,5 +1,4 @@
 // player table
-
 class player {
     constructor({ name, hand = [], chips, bet, msg, status }) {
         this.name = name;
@@ -10,6 +9,20 @@ class player {
         this.status = status;
     }
 }
+// CCCOOONNNSSSTTT
+const playerlist = document.getElementById("playerlist")
+const turntext = document.getElementById("turntext")
+const timertext = document.getElementById("timertext")
+const hit = document.getElementById("hit");
+const stand = document.getElementById("stand");
+const double = document.getElementById("double");
+const split = document.getElementById("split");
+const info = document.getElementById("info")
+const totaltext = document.getElementById("totaltext")
+const actionsinteractions = document.getElementById("actions")
+const betcontainer = document.getElementById("BetContainer")
+const betamount = betcontainer.querySelector("input")
+const tutorial = document.getElementById("tutorial");
 
 let players = {};
 
@@ -50,13 +63,13 @@ socket.on('update', (update) => {
     dealerhand = update.dealercard
 });
 
-document.getElementById("bet").querySelector("button").addEventListener("click", () => {
+
+betcontainer.querySelector("button").addEventListener("click", () => {
     if (!players[socket.id]) return;
-    const bet = document.getElementById("amount").value;
+    const bet = betamount.value;
     socket.emit("bet", bet)
 });
 
-const tutorial = document.getElementById("tutorial");
 
 document.getElementById("help").addEventListener("click", () => {
     console.log("click")
@@ -81,11 +94,6 @@ window.addEventListener("resize", () => {
     canvas.height = innerHeight * devicepixelratio;
 });
 
-const hit = document.getElementById("hit");
-const stand = document.getElementById("stand");
-const double = document.getElementById("double");
-const split = document.getElementById("split");
-
 hit.addEventListener("click", () => {
     if (!turn || !players[socket.id]) return;
     socket.emit("action", "hit")
@@ -109,13 +117,6 @@ split.addEventListener("click", () => {
 // visualsing game fr
 function draw() {
     ctx.clearRect(0, 0, canvas.width, canvas.height);
-
-    ctx.textAlign = "center";
-    ctx.font = "24px Arial";
-    ctx.fillStyle = "white";
-
-    const info = document.getElementById("info")
-    const totaltext = document.getElementById("totaltext")
 
     if (players[socket.id]) {
         let player = players[socket.id]
@@ -148,23 +149,19 @@ function draw() {
         }
     }
 
-    const betinginteractions = document.getElementById("bet")
-    const actionsinteractions = document.getElementById("actions")
-
     if (turn == null) {
-        betinginteractions.style.display = "block"
+        betcontainer.style.display = "block"
         actionsinteractions.style.display = "none"
     }
     else if (turn == players[socket.id].name) {
-        betinginteractions.style.display = "none"
+        betcontainer.style.display = "none"
         actionsinteractions.style.display = "block"
     }
     else {
-        betinginteractions.style.display = "none"
+        betcontainer.style.display = "none"
         actionsinteractions.style.display = "none"
     }
 
-    let playerlist = document.getElementById("playerlist")
     playerlist.innerHTML = ""
 
     for (const id in players) {
@@ -176,11 +173,8 @@ function draw() {
 
         if (player.hand)
 
-        playerlist.innerHTML += "Status: " + player.status + "</br></br>";
+            playerlist.innerHTML += "Status: " + player.status + "</br></br>";
     }
-
-    let turntext = document.getElementById("turntext")
-    let timertext = document.getElementById("timertext")
 
     if (turn == null) {
         turntext.innerHTML = "Waiting for bets"

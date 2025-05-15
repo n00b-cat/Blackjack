@@ -6,7 +6,7 @@ CREATE TABLE Players (
   ID int NOT NULL PRIMARY KEY AUTO_INCREMENT,
   Username varchar(255) NOT NULL,
   Password varchar(255) NOT NULL,
-  Chips int 
+  Chips int, 
 );
 
 Create TABLE Games (
@@ -17,5 +17,5 @@ Create TABLE Games (
   Date Date
 )
 
---- History ---
--- Date (so many days ago) -- Result
+--- History / games ---
+-- Date (so many days ago) -- Result = color and Result text -- Balance change +- --

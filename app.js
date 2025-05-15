@@ -48,8 +48,8 @@ app.post('/signup', async (req, res) => {
             console.log("username taken")
             return res.json({ success: false, message: "username taken" });
         } else {
-            sql = "INSERT INTO Players (Username, Password) VALUES (?, ?)";
-            await conn.query(sql, [username, password]);
+            sql = "INSERT INTO Players (Username, Password, Chips) VALUES (?, ?, ?)";
+            await conn.query(sql, [username, password, 500]);
 
             sql = "SELECT * FROM players WHERE Username = ?";
             let data = await conn.query(sql, [username]);
@@ -62,6 +62,13 @@ app.post('/signup', async (req, res) => {
         console.log("Passwords dont match")
         return res.json({ success: false, message: "Passwords dont match" });
     }
+});
+
+app.get("/leaderboard", async (req, res) => {
+    const conn = await getTestData()
+    const sql = "SELECT * FROM players ORDER BY Chips DESC";
+    const data = await conn.query(sql);
+    return res.json(data)
 });
 
 const mariadb = require('mariadb');

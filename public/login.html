@@ -9,32 +9,18 @@
 </head>
 
 <body>
-    <div class="navbar">
-        <a href="/">Game</a>
-        <a href="signup.html">Sign-up</a>
-        <a href="login.html">Log-in</a>
-    </div>
-
     <div class="container">
         <form method="post" onsubmit="OnLogin(event)">
             <h1>Login</h1>
             <hr>
 
-            <div class="column">
-                <div>Username</div>
-                <input name="username" type="text">
-            </div>
+            <input placeholder="Username" name="username" type="text">
+            <input placeholder="Password" name="password" type="password">
 
-            <div class="column">
-                <div>Password</div>
-                <input name="password" type="password">
-            </div>
-            
             <div id="LoginMsg"></div>
-
             <button>Login</button>
 
-            <div class="flex">
+            <div>
                 <div>Dont have a user?</div>
                 <a href="signup.html">Signup</a>
             </div>

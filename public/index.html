@@ -4,34 +4,37 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>card game</title>
+    <title>Blackjack</title>
     <link rel="stylesheet" href="style.css">
 </head>
 
 <body>
     <div class="navbar">
         <a href="/">Game</a>
-        <a href="signup.html">Sign-up</a>
-        <a href="login.html">Log-in</a>
+        <a href="leaderboard.html">Leaderboard</a>
+        <div class="flex">
+            <div id="Usernametext">Logged in as: </div>
+            <button id="Logout">Logout</button>
+        </div>
     </div>
 
     <div class="game-container">
         <canvas id="canvas" width="800" height="600"></canvas>
 
-        <button id="help"">?</button>
-        <div id="info"></div>
-        
+        <button id="help">?</button>
+        <div id="info">
+        </div>
+
         <div id="playerlist"></div>
 
         <div id="turntext"></div>
         <div id="timertext"></div>
-        
+
         <div id="totaltext"></div>
-        
-        <div class="flex" id="bet">
-            <div>Bet amount: </div>
-            <input type="number" id="amount">
-            <button>Bet</button>
+
+        <div class="flex" id="BetContainer">
+            <input placeholder="bet" type="number">
+            <button>Place</button>
         </div>
 
         <div class="flex" id="actions">
@@ -43,11 +46,11 @@
 
     </div>
 
-
     <div id="tutorial">
-        <h2>How to play blackjack</h2>
+        <h1>How to play blackjack</h1>
+        <hr>
 
-        <h3>Start</h3>
+        <h2>Start</h2>
         <div>
             In blackjack start by the players placing bets, after bets are placed the dealer start dealing cards around
             the
@@ -55,39 +58,45 @@
             dealer
             card is shown but the seccond is facedown.
         </div>
+        <hr>
 
-        <h3>Goal of the game</h3>
+        <h2>Goal of the game</h2>
         <div>
             In blackjack you play aganist the dealer and not the other players, the goal of the game is to get a hand
             (all
             the cards you have) to be worth 21. If you have over 21 you "bust" meaning you lose automatically.
         </div>
+        <hr>
 
-        <h3>Cards</h3>
+        <h2>Cards</h2>
         <div>
             In blackjack cards have their numbers as their worth and, all cards without numbers (king, queen, jack) all
             count as 10. The A is a little more special as it can have the value of a 1 or 11. A hand with A and 5 would
             be
             a "soft" 16.
         </div>
+        <hr>
 
-        <h3>Turns</h3>
+        <h2>Turns</h2>
         <div>
             <div>
                 Then one player at the time can decide what they want to do on their turn. there are 4 possible
                 actions in
                 blackjack you can do on your turn, "hit", "stand", "dobble" and "split"
             </div>
+            <hr>
 
             <div>**Hit:**</div>
             <div>
                 If the player "hit" they will be delt one more card, then they can decide their action again
             </div>
+            <hr>
 
             <div>**Stand:**</div>
             <div>
                 If the player "stands" they will end their turn.
             </div>
+            <hr>
 
             <div>**Dobble:**</div>
             <div>
@@ -95,6 +104,7 @@
                 after
                 they have dobbled their turn ends. meaning you cant hit anymore after a dobble.
             </div>
+            <hr>
 
             <div>**Split:**</div>
             <div>
@@ -105,18 +115,20 @@
                 delt one card each. The hands are player invidually where you cando your actions.
             </div>
         </div>
+        <hr>
 
-        <h3>Blackjack</h3>
+        <h2>Blackjack</h2>
         <div>
             Blackjack is the best hand a player can get and its when a player gets 21 on their fist two cards. Blackjack
             grants a win over a normal 21 but pushes against dealer having blackjack. The payout for winning with a
             blackjack is 1 and a half times more than u bet or (3 to 2)
         </div>
-        </div>
+    </div>
 
-        <script src="/socket.io/socket.io.js"></script>
-        <script src="js/classes.js"></script>
-        <script src="js/game.js"></script>
+    <script src="js/home.js"></script>
+    <script src="/socket.io/socket.io.js"></script>
+    <script src="js/classes.js"></script>
+    <script src="js/game.js"></script>
 </body>
 
 </html>
