@@ -5,13 +5,13 @@ This is a multiplayer blackjack game made where the website can be hosted on a c
 **Multiplayer support:** Players can connect to the server and play together
 
 **Real-time updates:**
-The game updates for all players constantly showing their actions and turn time
+Using node.js the game updates for all players showing their actions.
 
 ## Installation
 How to set up project and installing node.js
 
 ### Settings
-Here is how you can change
+Here is how you can change some of the settings for the game.
 
 ## Dependencies
 
@@ -39,9 +39,6 @@ If the player dobbles, they get one more card just like hit but they also dobble
 
 **Split:**
 Split the player can only do this if they have to identical cards in value. When splitting the players hand is divided into two SEPRART hands, on the new hand the player places a equal bet to the first hand. The hands gets delt one card each. The hands are player invidually where you cando your actions.
-
-**Disclamer:**
-Deppending on the rulesett the casnio has can determain how many hands a player can have at the sametime.
 
 After all the players have done their turns the dealer flips his hidden card, and deppending on the value he hits or stands. if your hand is less then the dealers you lose, if the dealer has the same value you "push", meaning that the bet was refunded (tie). but if you have more then the dealer you win and dobble your bet.
 

@@ -1,0 +1,53 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Signup</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+
+<body>
+    <div class="navbar">
+        <a href="/">Game</a>
+        <a href="signup.html">Sign-up</a>
+        <a href="login.html">Log-in</a>
+    </div>
+
+    <div class="container">
+        <form method="post" onsubmit="OnSignup(event)">
+            <h1>Signup</h1>
+            <hr>
+
+            <div class="column">
+                <div>Username</div>
+                <input name="username" type="text">
+            </div>
+
+            <div class="column">
+                <div>Password</div>
+                <input name="password" type="password">
+            </div>
+
+            <div class="column">
+                <div>Confirm Password</div>
+                <input name="password2" type="password">
+            </div>
+
+            <div id="SingupMsg"></div>
+
+            <button>Signup</button>
+
+            <div class="flex">
+                <div>Already have a user?</div>
+                <a href="login.html">Login</a>
+            </div>
+        </form>
+    </div>
+
+    <script src="js/script.js"></script>
+
+</body>
+
+</html>

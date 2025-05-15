@@ -1,11 +1,13 @@
 // player table
 
 class player {
-    constructor({ name, hand = [], chips, bet }) {
+    constructor({ name, hand = [], chips, bet, msg, status }) {
         this.name = name;
         this.hand = hand;
         this.chips = chips;
         this.bet = bet;
+        this.msg = msg;
+        this.status = status;
     }
 }
 
@@ -19,13 +21,15 @@ socket.on('updatePlayers', (serverplayers) => {
 
         if (!players[id]) {
             players[id] = new player(
-                { name: serverplayer.name, hand: serverplayer.hand, bet: serverplayer.bet, chips: serverplayer.chips }
+                { name: serverplayer.name, hand: serverplayer.hand, bet: serverplayer.bet, chips: serverplayer.chips, msg: serverplayer.msg, status: serverplayer.status }
             );
         }
-        else { 
+        else {
             players[id].bet = serverplayer.bet;
             players[id].chips = serverplayer.chips;
             players[id].hand = serverplayer.hand;
+            players[id].status = serverplayer.status;
+            players[id].msg = serverplayer.msg;
         }
     }
 
@@ -38,17 +42,30 @@ socket.on('updatePlayers', (serverplayers) => {
 
 let timer = "..."
 let turn = null
+let dealerhand = []
 
 socket.on('update', (update) => {
     turn = update.serverturn;
     timer = update.servertime;
+    dealerhand = update.dealercard
 });
 
-document.getElementById("bet").addEventListener("click", () => {
+document.getElementById("bet").querySelector("button").addEventListener("click", () => {
     if (!players[socket.id]) return;
     const bet = document.getElementById("amount").value;
     socket.emit("bet", bet)
 });
+
+const tutorial = document.getElementById("tutorial");
+
+document.getElementById("help").addEventListener("click", () => {
+    console.log("click")
+    if (tutorial.style.display == "none") {
+        tutorial.style.display = "block"
+    } else {
+        tutorial.style.display = "none"
+    }
+})
 
 // canvas
 const canvas = document.getElementById("canvas");
@@ -91,34 +108,86 @@ split.addEventListener("click", () => {
 
 // visualsing game fr
 function draw() {
-
-    ctx.textAlign = "center";
-    ctx.font = "18px Verdana";
-    ctx.fillStyle = "white";
-
     ctx.clearRect(0, 0, canvas.width, canvas.height);
 
-    let yOffset = 50;
-    for (const id in players) {
-        const player = players[id];
-        ctx.fillText(player.name, 60, yOffset);
-        ctx.fillText("chips: " + player.chips, 60, yOffset + 25);
-        ctx.fillText("bet: " + player.bet, 60, yOffset + 50);
-        for (let x = 0; x < player.hand.length; x++) {
-            let card = new Card(player.hand[x].suit, player.hand[x].number, 10 + x * 60, canvas.height - 140);
-            card.x = 10 + x * 60;
-            card.y = yOffset + card.height + 25;
-            card.draw(ctx);
+    ctx.textAlign = "center";
+    ctx.font = "24px Arial";
+    ctx.fillStyle = "white";
+
+    const info = document.getElementById("info")
+    const totaltext = document.getElementById("totaltext")
+
+    if (players[socket.id]) {
+        let player = players[socket.id]
+
+        info.innerHTML = player.msg;
+
+        totaltext.innerHTML = ""
+        if (player.hand.length > 0) {
+            let total = 0
+
+            for (let i = 0; i < player.hand.length; i++) {
+                let card = new Card(player.hand[i].suit, player.hand[i].number, 1, 1);
+
+                card.x = (canvas.width / 2) - ((card.width) / 2) - (((player.hand.length - 1) * 12) / 2) + (i * 12);
+                card.y = canvas.height - 230;
+                card.draw(ctx);
+                total += card.number
+            }
+            totaltext.innerHTML = "Total: " + total
         }
-        yOffset += 220;
     }
 
-    if (turn == null) {
-        ctx.fillText("Waiting for bets", canvas.width / 2, 25);
-    } else {
-        ctx.fillText(turn + "'s turn", canvas.width / 2, 25);
+    if (dealerhand) {
+        for (let i = 0; i < dealerhand.length; i++) {
+            let card = new Card(dealerhand[i].suit, dealerhand[i].number, 1, 1);
+
+            card.x = (canvas.width / 2) - ((card.width * dealerhand.length) / 2) - (((dealerhand.length - 1) * 10) / 2) + (card.width * i) + (i * 10);
+            card.y = canvas.height - 600;
+            card.draw(ctx);
+        }
     }
-    ctx.fillText("time left: " + timer, canvas.width / 2, 50);
+
+    const betinginteractions = document.getElementById("bet")
+    const actionsinteractions = document.getElementById("actions")
+
+    if (turn == null) {
+        betinginteractions.style.display = "block"
+        actionsinteractions.style.display = "none"
+    }
+    else if (turn == players[socket.id].name) {
+        betinginteractions.style.display = "none"
+        actionsinteractions.style.display = "block"
+    }
+    else {
+        betinginteractions.style.display = "none"
+        actionsinteractions.style.display = "none"
+    }
+
+    let playerlist = document.getElementById("playerlist")
+    playerlist.innerHTML = ""
+
+    for (const id in players) {
+        const player = players[id];
+
+        playerlist.innerHTML += "Name: " + player.name + "</br>";
+        playerlist.innerHTML += "Chips: " + player.chips + "</br>";
+        playerlist.innerHTML += "Bet: " + player.bet + "</br>";
+
+        if (player.hand)
+
+        playerlist.innerHTML += "Status: " + player.status + "</br></br>";
+    }
+
+    let turntext = document.getElementById("turntext")
+    let timertext = document.getElementById("timertext")
+
+    if (turn == null) {
+        turntext.innerHTML = "Waiting for bets"
+    } else {
+        turntext.innerHTML = turn + "'s turn"
+    }
+    timertext.innerHTML = "time left: " + timer
 }
 
 // game loop / loop
