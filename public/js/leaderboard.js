@@ -1,11 +1,3 @@
-const username = localStorage.getItem("user")
-if (!username) {
-    window.addEventListener("load", () => {
-        window.location = "login.html"
-    });
-}
-
-console.log(localStorage.getItem("user"))
 const leaderboardtable = document.getElementById("Leaderboard")
 
 async function leaderboard() {

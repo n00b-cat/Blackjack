@@ -16,10 +16,7 @@ app.use(express.json());
 
 app.post('/login', async (req, res) => {
     const { username, password } = req.body;
-    const conn = await getTestData()
-    let sql = "SELECT * FROM players WHERE Username = ?";
-    let users = await conn.query(sql, [username]);
-
+    const users = await runQuery("SELECT * FROM players WHERE Username = ?", [username])
     if (users.length > 0) {
         if (username == users[0].Username && password == users[0].Password) {
             console.log("Sucsessfully login")
@@ -40,19 +37,16 @@ app.post('/signup', async (req, res) => {
     const { username, password, password2 } = req.body;
 
     if (password == password2) {
-        const conn = await getTestData()
-        let sql = "SELECT * FROM players WHERE Username = ?";
-        let data = await conn.query(sql, [username]);
-
+        const data = await runQuery("SELECT * FROM players WHERE Username = ?", [username])
         if (data.length > 0) {
             console.log("username taken")
             return res.json({ success: false, message: "username taken" });
         } else {
             sql = "INSERT INTO Players (Username, Password, Chips) VALUES (?, ?, ?)";
-            await conn.query(sql, [username, password, 500]);
+            await runQuery(sql, [username, password, 500]);
 
             sql = "SELECT * FROM players WHERE Username = ?";
-            let data = await conn.query(sql, [username]);
+            let data = await runQuery(sql, [username]);
 
             console.log("User created")
             return res.json({ success: true, user: data[0] });
@@ -65,9 +59,7 @@ app.post('/signup', async (req, res) => {
 });
 
 app.get("/leaderboard", async (req, res) => {
-    const conn = await getTestData()
-    const sql = "SELECT * FROM players ORDER BY Chips DESC";
-    const data = await conn.query(sql);
+    const data = await runQuery("SELECT * FROM players ORDER BY Chips DESC")
     return res.json(data)
 });
 
@@ -81,11 +73,11 @@ const pool = mariadb.createPool({
     connectionLimit: 5
 });
 
-async function getTestData() {
+async function runQuery(sql, param) {
     let conn;
     try {
         conn = await pool.getConnection();
-        return await conn;
+        return await conn.query(sql, param);
     } catch (err) {
         console.error(err);
         throw err;
@@ -94,20 +86,28 @@ async function getTestData() {
     }
 }
 
+async function loadPlayer(username) {
+    const players = await runQuery("SELECT * FROM players WHERE Username = ?", [username])
+    return players[0];
+}
 
 const splayer = {};
 let number = 1
 
-io.on('connection', (socket) => {
-    console.log('a user connected');
+io.on('connection', async (socket) => {
+    const username = socket.request._query['username']
+    console.log(`${username} connected`);
+
+    const player = await loadPlayer(username);
 
     splayer[socket.id] = {
-        "name": "Player" + number++,
+        "name": player.Username,
         "hand": [],
         "bet": 0,
         "status": "idle",
-        "chips": 500,
-        "msg": ""
+        "chips": player.Chips,
+        "msg": "",
+        "total": 0
     };
 
     io.emit('updatePlayers', splayer);
@@ -118,8 +118,6 @@ io.on('connection', (socket) => {
         delete splayer[socket.id];
         io.emit('updatePlayers', splayer);
     });
-
-    console.log(splayer);
 
     socket.on("bet", (betamount) => {
         if (splayer[socket.id].chips < betamount) {
@@ -139,50 +137,67 @@ io.on('connection', (socket) => {
     });
 
     socket.on("action", (action) => {
-        if (serverturn != splayer[socket.id].name) {
-            splayer[socket.id].msg = "Not your turn </br>"
+        const p = splayer[socket.id];
+        if (serverturn != p.name) {
+            p.msg = "Not your turn </br>"
         }
-        else if (splayer[socket.id].status != "playing") {
-            splayer[socket.id].msg = "You are busted or not playing </br>"
+        else if (p.status != "playing") {
+            p.msg = "You are busted or not playing </br>"
         }
-        else if (splayer[socket.id].hand.length >= 5) {
-            splayer[socket.id].msg = "You have the maximum amout of cards (5) </br>"
+        else if (p.hand.length >= 5) {
+            p.msg = "You have the maximum amout of cards (5) </br>"
         }
         else {
             if (action == "hit") {
-                splayer[socket.id].msg = "hit </br>"
-                splayer[socket.id].hand.push(deck.pop());
+                p.msg = "hit </br>"
+                p.hand.push(deck.pop());
                 servertime = 5
+                countcards(p)
+                checkbusted(p)
             }
             else if (action == "stand") {
-                splayer[socket.id].msg = "stand </br>"
+                p.msg = "stand </br>"
                 servertime = 1
             }
             else if (action == "double") {
-                splayer[socket.id].msg = "double </br>"
+                p.msg = "double </br>"
                 servertime = 5
             }
             else if (action == "split") {
-                splayer[socket.id].msg = "split </br>"
+                p.msg = "split </br>"
                 servertime = 5
             }
             else {
-                splayer[socket.id].msg = "invalid action </br>"
-            }
-
-            let total = 0
-            for (let i = 0; i < splayer[socket.id].hand.length; i++) {
-                total += splayer[socket.id].hand[i].number
-            }
-
-            if (total > 21) {
-                splayer[socket.id].status = "Busted"
+                p.msg = "invalid action </br>"
             }
         }
 
         io.emit('updatePlayers', splayer);
     });
 });
+
+function countcards(player) {
+    player.total = 0
+    for (let i = 0; i < player.hand.length; i++) {
+        player.total += player.hand[i].number == 1
+            ? 11
+            : Math.min(player.hand[i].number, 10);
+    }
+}
+
+function checkbusted(player) {
+    if (player.total > 21) {
+        for (let i = 0; i < player.hand.length; i++) {
+            const card = player.hand[i]
+            if (card.number == 11) {
+                card.number = 1
+                player.total -= 10
+            }
+        }
+        player.status = "Busted"
+        servertime = 0;
+    }
+}
 
 let servertime = 10;
 
@@ -196,7 +211,6 @@ setInterval(() => {
     Object.values(splayer).some(player => {
         if (player.bet > 0 && servertime > 0) {
             servertime--;
-            console.log(servertime)
             return true;
         }
         return false;
@@ -266,6 +280,7 @@ function deal_cards() {
             for (let i = 0; i < 2; i++) {
                 player.hand.push(deck.pop());
             }
+            countcards(player)
             playersingame[id] = player;
         }
     });
@@ -279,14 +294,17 @@ function game_end() {
     gameongoing = false;
     serverturn = null;
 
-    Object.entries(playersingame).forEach(([id]) => {
-        if (splayer[id].status == "playing") {
-            splayer[id].chips += splayer[id].bet * 2;
+    Object.entries(playersingame).forEach(async ([id]) => {
+        const p = splayer[id];
+        if (p.status == "playing") {
+            p.chips += p.bet * 2;
         }
-        splayer[id].bet = 0;
-        splayer[id].hand = [];
-        splayer[id].status = "idle"
+        p.bet = 0;
+        p.hand = [];
+        p.status = "idle"
 
+        // update database
+        await runQuery("update Players set Chips=? where Username=?", [p.chips, p.name]);
     });
     dealerhand = []
     playersingame = {};

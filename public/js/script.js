@@ -1,63 +1,35 @@
-const username = localStorage.getItem("user")
-if (username) {
-    window.addEventListener("load", () => {
-        window.location = "/"
-    });
+function getUser() {
+    let user = localStorage.getItem("user");
+    return user
+        ? JSON.parse(user)
+        : null;
 }
 
+function setUser(user) {
+    localStorage.setItem("user", JSON.stringify(user));
+}
 
-console.log(localStorage.getItem("user"))
+const user = getUser()
 
-async function OnLogin(e) {
-    e.preventDefault();
-
-    const data = {
-        username: e.target.username.value,
-        password: e.target.password.value
-    };
-
-    const res = await fetch("/login", {
-        method: "POST",
-        body: JSON.stringify(data),
-        headers: {
-            "Content-Type": "application/json; charset=UTF-8"
-        }
-    });
-
-    const result = await res.json();
-    if (result.success) {
-        localStorage.setItem("user", result.user.Username)
-        window.location = "/"
+if (window.location.pathname == "/signup.html" || window.location.pathname == "/login.html") {
+    if (user) {
+        window.addEventListener("load", () => {
+            window.location = "/"
+        });
+    }
+}
+else {
+    if (!user) {
+        window.addEventListener("load", () => {
+            window.location = "/login.html"
+        });
     }
     else {
-        document.getElementById("LoginMsg").innerHTML = result.message
+        document.getElementById("Usernametext").innerHTML += user.Username
+
+        document.getElementById("Logout").addEventListener("click", () => {
+            localStorage.clear();
+            window.location = "login.html"
+        });
     }
 }
-
-async function OnSignup(e) {
-    e.preventDefault();
-
-    const data = {
-        username: e.target.username.value,
-        password: e.target.password.value,
-        password2: e.target.password2.value
-    };
-
-    const res = await fetch("/signup", {
-        method: "POST",
-        body: JSON.stringify(data),
-        headers: {
-            "Content-Type": "application/json; charset=UTF-8"
-        }
-    });
-
-    const result = await res.json();
-    if (result.success) {
-        localStorage.setItem("user", result.user.Username)
-        window.location = "/"
-    }
-    else {
-        document.getElementById("SingupMsg").innerHTML = result.message
-    }
-}
-

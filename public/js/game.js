@@ -1,14 +1,3 @@
-// player table
-class player {
-    constructor({ name, hand = [], chips, bet, msg, status }) {
-        this.name = name;
-        this.hand = hand;
-        this.chips = chips;
-        this.bet = bet;
-        this.msg = msg;
-        this.status = status;
-    }
-}
 // CCCOOONNNSSSTTT
 const playerlist = document.getElementById("playerlist")
 const turntext = document.getElementById("turntext")
@@ -26,7 +15,7 @@ const tutorial = document.getElementById("tutorial");
 
 let players = {};
 
-const socket = io();
+const socket = io({query: `username=${user.Username}` });
 
 socket.on('updatePlayers', (serverplayers) => {
     for (const id in serverplayers) {
@@ -34,7 +23,7 @@ socket.on('updatePlayers', (serverplayers) => {
 
         if (!players[id]) {
             players[id] = new player(
-                { name: serverplayer.name, hand: serverplayer.hand, bet: serverplayer.bet, chips: serverplayer.chips, msg: serverplayer.msg, status: serverplayer.status }
+                { name: serverplayer.name, hand: serverplayer.hand, bet: serverplayer.bet, chips: serverplayer.chips, msg: serverplayer.msg, status: serverplayer.status, total: serverplayer.total }
             );
         }
         else {
@@ -43,6 +32,7 @@ socket.on('updatePlayers', (serverplayers) => {
             players[id].hand = serverplayer.hand;
             players[id].status = serverplayer.status;
             players[id].msg = serverplayer.msg;
+            players[id].total = serverplayer.total;
         }
     }
 
@@ -123,9 +113,7 @@ function draw() {
 
         info.innerHTML = player.msg;
 
-        totaltext.innerHTML = ""
         if (player.hand.length > 0) {
-            let total = 0
 
             for (let i = 0; i < player.hand.length; i++) {
                 let card = new Card(player.hand[i].suit, player.hand[i].number, 1, 1);
@@ -133,9 +121,8 @@ function draw() {
                 card.x = (canvas.width / 2) - ((card.width) / 2) - (((player.hand.length - 1) * 12) / 2) + (i * 12);
                 card.y = canvas.height - 230;
                 card.draw(ctx);
-                total += card.number
             }
-            totaltext.innerHTML = "Total: " + total
+            totaltext.innerHTML = "Total: " + player.total
         }
     }
 

@@ -10,7 +10,7 @@
 
 <body>
     <div class="navbar">
-        <a href="/">Game</a>
+        <a class="Selected" href="/">Game</a>
         <a href="leaderboard.html">Leaderboard</a>
         <div class="flex">
             <div id="Usernametext">Logged in as: </div>
@@ -22,8 +22,8 @@
         <canvas id="canvas" width="800" height="600"></canvas>
 
         <button id="help">?</button>
-        <div id="info">
-        </div>
+
+        <div id="info"></div>
 
         <div id="playerlist"></div>
 
@@ -125,8 +125,8 @@
         </div>
     </div>
 
-    <script src="js/home.js"></script>
     <script src="/socket.io/socket.io.js"></script>
+    <script src="js/script.js"></script>
     <script src="js/classes.js"></script>
     <script src="js/game.js"></script>
 </body>

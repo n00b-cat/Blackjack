@@ -5,17 +5,30 @@ This is a multiplayer blackjack game made where the website can be hosted on a c
 **Multiplayer support:** Players can connect to the server and play together
 
 **Real-time updates:**
-Using node.js the game updates for all players showing their actions.
+Using node.js and websockets to get real-time updates for all players.
 
 ## Installation
-How to set up project and installing node.js
+To run this project you need the following installed:
 
-### Settings
-Here is how you can change some of the settings for the game.
+**Mariadb**
+
+```https://mariadb.com/downloads/```
+
+Note: Working password and username for mariadb needs to match the one in app.js. (const pool)
+
+**Nodejs**
+
+```https://nodejs.org/en/download```
 
 ## Dependencies
+Dependencies used in this project.
+```sh
+npm install express
+npm install mariadb
+npm install socket.io
+```
 
-## How to play
+## How to play blackjack
 ### Start
 In blackjack start by the players placing bets, after bets are placed the dealer start dealing cards around the table until all players inculding the dealer has 2 cards. All player cards are faceup, while the first dealer card is shown but the seccond is facedown.
 

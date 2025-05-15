@@ -15,3 +15,16 @@ class Card {
         ctx.drawImage(this.image, (this.number - 1) * 55 + (this.number - 1), 0, this.width, this.height, this.x, this.y, this.width, this.height);
     }
 }
+
+// player table
+class player {
+    constructor({ name, hand = [], chips, bet, msg, status, total }) {
+        this.name = name;
+        this.hand = hand;
+        this.chips = chips;
+        this.bet = bet;
+        this.msg = msg;
+        this.status = status;
+        this.total = total;
+    }
+}
