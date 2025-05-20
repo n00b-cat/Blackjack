@@ -16,7 +16,7 @@ app.use(express.json());
 
 app.post('/login', async (req, res) => {
     const { username, password } = req.body;
-    const users = await runQuery("SELECT * FROM players WHERE Username = ?", [username])
+    const users = await runQuery("SELECT * FROM Players WHERE Username = ?", [username])
     if (users.length > 0) {
         const match = await bcrypt.compare(password, users[0].Password);
         if (match) {
@@ -41,7 +41,7 @@ app.post('/signup', async (req, res) => {
     const hashedPassword = await bcrypt.hash(password, 10);
 
     if (password == password2) {
-        const data = await runQuery("SELECT * FROM players WHERE Username = ?", [username])
+        const data = await runQuery("SELECT * FROM Players WHERE Username = ?", [username])
         if (data.length > 0) {
             console.log("username taken")
             return res.json({ success: false, message: "username taken" });
@@ -49,7 +49,7 @@ app.post('/signup', async (req, res) => {
             sql = "INSERT INTO Players (Username, Password, Chips) VALUES (?, ?, ?)";
             await runQuery(sql, [username, hashedPassword, 500]);
 
-            sql = "SELECT * FROM players WHERE Username = ?";
+            sql = "SELECT * FROM Players WHERE Username = ?";
             let data = await runQuery(sql, [username]);
 
             console.log("User created")
@@ -63,7 +63,7 @@ app.post('/signup', async (req, res) => {
 });
 
 app.get("/leaderboard", async (req, res) => {
-    const data = await runQuery("SELECT * FROM players ORDER BY Chips DESC")
+    const data = await runQuery("SELECT * FROM Players ORDER BY Chips DESC")
     return res.json(data)
 });
 
@@ -91,7 +91,7 @@ async function runQuery(sql, param) {
 }
 
 async function loadPlayer(username) {
-    const players = await runQuery("SELECT * FROM players WHERE Username = ?", [username])
+    const players = await runQuery("SELECT * FROM Players WHERE Username = ?", [username])
     return players[0];
 }
 
