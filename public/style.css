@@ -255,3 +255,13 @@ form {
         gap: 7px;
     }
 }
+
+.leaderboardMenu {
+    width: min-content;
+    padding: 10px;
+    margin-top: 10px;
+    background-color: #eff1f5;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+}

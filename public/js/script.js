@@ -13,16 +13,12 @@ const user = getUser()
 
 if (window.location.pathname == "/signup.html" || window.location.pathname == "/login.html") {
     if (user) {
-        window.addEventListener("load", () => {
-            window.location = "/"
-        });
+        window.location = "/"
     }
 }
 else {
     if (!user) {
-        window.addEventListener("load", () => {
-            window.location = "/login.html"
-        });
+        window.location = "/login.html"
     }
     else {
         document.getElementById("Usernametext").innerHTML += user.Username

@@ -15,7 +15,7 @@ const tutorial = document.getElementById("tutorial");
 
 let players = {};
 
-const socket = io({query: `username=${user.Username}` });
+const socket = io({ query: `username=${user.Username}` });
 
 socket.on('updatePlayers', (serverplayers) => {
     for (const id in serverplayers) {
@@ -45,14 +45,20 @@ socket.on('updatePlayers', (serverplayers) => {
 
 let timer = "..."
 let turn = null
+
 let dealerhand = []
+let dealertotal = 0
 
 socket.on('update', (update) => {
     turn = update.serverturn;
     timer = update.servertime;
-    dealerhand = update.dealercard
 });
 
+socket.on('dealercards', (update) => {
+    console.log(update)
+    dealerhand = update.dealerhand
+    dealertotal = update.dealertotal
+})
 
 betcontainer.querySelector("button").addEventListener("click", () => {
     if (!players[socket.id]) return;
@@ -140,7 +146,7 @@ function draw() {
         betcontainer.style.display = "block"
         actionsinteractions.style.display = "none"
     }
-    else if (turn == players[socket.id].name) {
+    else if (players[socket.id] && turn == players[socket.id].name) {
         betcontainer.style.display = "none"
         actionsinteractions.style.display = "block"
     }
@@ -159,7 +165,6 @@ function draw() {
         playerlist.innerHTML += "Bet: " + player.bet + "</br>";
 
         if (player.hand)
-
             playerlist.innerHTML += "Status: " + player.status + "</br></br>";
     }
 

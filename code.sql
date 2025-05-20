@@ -1,12 +1,16 @@
 Create Database Blackjack;
 
+CREATE USER 'blackjackuser'@localhost IDENTIFIED BY 'password';
+GRANT ALL PRIVILEGES ON Blackjack.* TO 'blackjackuser'@localhost;
+
+
 Use Blackjack;
 
 CREATE TABLE Players (
   ID int NOT NULL PRIMARY KEY AUTO_INCREMENT,
   Username varchar(255) NOT NULL,
   Password varchar(255) NOT NULL,
-  Chips int, 
+  Chips bigint
 );
 
 Create TABLE Games (

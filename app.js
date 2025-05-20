@@ -18,7 +18,8 @@ app.post('/login', async (req, res) => {
     const { username, password } = req.body;
     const users = await runQuery("SELECT * FROM players WHERE Username = ?", [username])
     if (users.length > 0) {
-        if (username == users[0].Username && password == users[0].Password) {
+        const match = await bcrypt.compare(password, users[0].Password);
+        if (match) {
             console.log("Sucsessfully login")
             return res.json({ success: true, user: users[0] });
         }
@@ -33,8 +34,11 @@ app.post('/login', async (req, res) => {
     }
 });
 
+const bcrypt = require('bcrypt');
+
 app.post('/signup', async (req, res) => {
     const { username, password, password2 } = req.body;
+    const hashedPassword = await bcrypt.hash(password, 10);
 
     if (password == password2) {
         const data = await runQuery("SELECT * FROM players WHERE Username = ?", [username])
@@ -43,7 +47,7 @@ app.post('/signup', async (req, res) => {
             return res.json({ success: false, message: "username taken" });
         } else {
             sql = "INSERT INTO Players (Username, Password, Chips) VALUES (?, ?, ?)";
-            await runQuery(sql, [username, password, 500]);
+            await runQuery(sql, [username, hashedPassword, 500]);
 
             sql = "SELECT * FROM players WHERE Username = ?";
             let data = await runQuery(sql, [username]);
@@ -68,8 +72,8 @@ const { Console } = require('console');
 const pool = mariadb.createPool({
     host: 'localhost',
     database: 'Blackjack',
-    user: 'root',
-    password: 'skibidi07',
+    user: 'blackjackuser',
+    password: 'password',
     connectionLimit: 5
 });
 
@@ -152,8 +156,8 @@ io.on('connection', async (socket) => {
                 p.msg = "hit </br>"
                 p.hand.push(deck.pop());
                 servertime = 5
-                countcards(p)
-                checkbusted(p)
+                console.log(calculateTotal(p.hand))
+                p.total = calculateTotal(p.hand)
             }
             else if (action == "stand") {
                 p.msg = "stand </br>"
@@ -176,40 +180,26 @@ io.on('connection', async (socket) => {
     });
 });
 
-function countcards(player) {
-    player.total = 0
-    for (let i = 0; i < player.hand.length; i++) {
-        player.total += player.hand[i].number == 1
-            ? 11
-            : Math.min(player.hand[i].number, 10);
-    }
-}
-
-function checkbusted(player) {
-    if (player.total > 21) {
-        for (let i = 0; i < player.hand.length; i++) {
-            const card = player.hand[i]
-            if (card.number == 11) {
-                card.number = 1
-                player.total -= 10
-            }
-        }
-        player.status = "Busted"
-        servertime = 0;
-    }
-}
-
 let servertime = 10;
 
 let gameongoing = false;
 let serverturn = null;
 let playersingame = {};
-let dealerhand = [];
+
+let dealer = {
+    "Hand": [],
+    "Total": 0,
+    "Status": "idle"
+}
+
 let x = 0;
 
 setInterval(() => {
+    io.emit('update', { servertime, serverturn });
+    io.emit('updatePlayers', splayer);
+
     Object.values(splayer).some(player => {
-        if (player.bet > 0 && servertime > 0) {
+        if (player.bet > 0 || gameongoing == true) {
             servertime--;
             return true;
         }
@@ -231,13 +221,11 @@ setInterval(() => {
             servertime = 5;
             console.log("Turn ended")
         } else {
-            game_end()
-            servertime = 10;
+            serverturn = "dealer"
+            dealerturn()
         }
     }
 
-    io.emit('update', { servertime, serverturn });
-    io.emit('updatePlayers', splayer);
 
 }, 1000);
 
@@ -280,14 +268,53 @@ function deal_cards() {
             for (let i = 0; i < 2; i++) {
                 player.hand.push(deck.pop());
             }
-            countcards(player)
+            calculateTotal(player.hand)
             playersingame[id] = player;
         }
     });
-    dealerhand.push(deck.pop())
-    dealerhand.push(deck.pop())
+    dealer.Hand.push(deck.pop())
+    dealer.Hand.push(deck.pop())
+    console.log(dealer.Hand[0])
 
-    io.emit('update', { servertime, serverturn, dealercard: [dealerhand[0]] });
+    io.emit('dealercards', { dealerhand: [dealer.Hand[0]] })
+    io.emit('update', { servertime, serverturn });
+}
+
+function calculateTotal(hand) {
+    let total = 0;
+    let aces = 0;
+    console.log(hand)
+    for (let card of hand) {
+        if (card.number === 1) {
+            total += 11;
+            aces++;
+        } else {
+            total += Math.min(card.number, 10);
+        }
+    }
+    while (total > 21 && aces > 0) {
+        total -= 10;
+        aces--;
+    }
+    return total;
+}
+
+function dealerturn() {
+    servertime = 5
+    dealer.Total = calculateTotal(dealer.Hand);
+
+    io.emit('dealercards', { dealerhand: [dealer.Hand], dealertotal: dealer.Total });
+
+    console.log("--------------")
+    console.log(dealer.Total)
+
+    if (dealer.Total < 17) {
+        console.log("new card")
+        dealer.Hand.push(deck.pop());
+        dealerturn()
+    } else {
+        game_end()
+    }
 }
 
 function game_end() {
@@ -296,21 +323,22 @@ function game_end() {
 
     Object.entries(playersingame).forEach(async ([id]) => {
         const p = splayer[id];
-        if (p.status == "playing") {
+        if (p.status == "playing" && p.total > dealer.Total || p.status == "playing" && dealer.Status == "busted") {
             p.chips += p.bet * 2;
+            p.msg = "You Won!"
         }
         p.bet = 0;
         p.hand = [];
         p.status = "idle"
+        p.msg = "Dealer Wins :("
 
         // update database
         await runQuery("update Players set Chips=? where Username=?", [p.chips, p.name]);
     });
-    dealerhand = []
+    dealer.Hand = []
     playersingame = {};
 
-    io.emit('update', { servertime, serverturn, dealercard: [dealerhand[0]] });
-
-    console.log("game ended")
-    console.log("serverplayers", splayer);
+    io.emit('dealercards', {dealerhand: [dealer.Hand]})
+    io.emit('update', { servertime, serverturn });
+    io.emit('updatePlayers', splayer);
 }
