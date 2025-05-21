@@ -21,7 +21,19 @@ else {
         window.location = "/login.html"
     }
     else {
-        document.getElementById("Usernametext").innerHTML += user.Username
+        const dropBtn = document.getElementById("userDropdownBtn")
+        const menu = document.getElementById('userDropdownMenu');
+
+        dropBtn.innerHTML = '<div class="flex"><div>' + user.Username + '</div><img src="Icons/arrow_drop_down.svg"></div>'
+
+        dropBtn.addEventListener("click", () => {
+            const isOpen = menu.style.display === 'block';
+
+            menu.style.display = isOpen ? 'none' : 'block';
+            dropBtn.querySelector("div").querySelector("img").src = isOpen
+                ? "Icons/arrow_drop_down.svg"
+                : "Icons/arrow_drop_up.svg";
+        });
 
         document.getElementById("Logout").addEventListener("click", () => {
             localStorage.clear();

@@ -10,27 +10,55 @@
 
 <body>
     <div class="navbar">
-        <a href="/">Game</a>
-        <a class="Selected" href="leaderboard.html">Leaderboard</a>
         <div class="flex">
-            <div id="Usernametext">Logged in as: </div>
-            <button id="Logout">Logout</button>
+            <a href="/">Game</a>
+            <a href="leaderboard.html">Leaderboard</a>
+        </div>
+
+        <div class="dropDownWrapper">
+            <button id="userDropdownBtn"></button>
+            <div id="userDropdownMenu">
+                <button id="Logout">
+                    <div class="flex">
+                        <div>Logout</div>
+                        <img src="Icons/logout.svg">
+                    </div>
+                </button>
+            </div>
         </div>
     </div>
 
-    <div class="leaderboardMenu">
+    <div class="leaderboardContainer">
+        <div class="leaderboardStyle">
+            <h1>Richest players</h1>
+            <hr>
+            <table>
+                <tbody id="Leaderboard">
+                    <tr>
+                        <th>Username</th>
+                        <th>Chips</th>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
 
-        <h1>Top 10 Richest Players:</h1>
-        
-        <table>
-            <tbody id="Leaderboard">
-                <tr>
-                    <th>Username</th>
-                    <th>Chips</th>
-                </tr>
-            </tbody>
-        </table>
+        <div class="leaderboardStyle">
+            <h1>Example leaderboard</h1>
+            <hr>
+            <table>
+                <tbody>
+                    <tr>
+                        <th>Username</th>
+                        <th>Games</th>
+                        <th>Win</th>
+                        <th>Loss</th>
+                        <th>Win loss ratio</th>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
     </div>
+
 
     <script src="js/script.js"></script>
     <script src="js/leaderboard.js"></script>

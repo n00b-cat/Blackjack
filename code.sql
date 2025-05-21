@@ -10,7 +10,7 @@ CREATE TABLE Players (
   ID int NOT NULL PRIMARY KEY AUTO_INCREMENT,
   Username varchar(255) NOT NULL,
   Password varchar(255) NOT NULL,
-  Chips bigint
+  Chips int
 );
 
 Create TABLE Games (

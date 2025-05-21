@@ -10,11 +10,21 @@
 
 <body>
     <div class="navbar">
-        <a class="Selected" href="/">Game</a>
-        <a href="leaderboard.html">Leaderboard</a>
         <div class="flex">
-            <div id="Usernametext">Logged in as: </div>
-            <button id="Logout">Logout</button>
+            <a href="/">Game</a>
+            <a href="leaderboard.html">Leaderboard</a>
+        </div>
+
+        <div class="dropDownWrapper">
+            <button id="userDropdownBtn"></button>
+            <div id="userDropdownMenu">
+                <button id="Logout">
+                    <div class="flex">
+                        <div>Logout</div>
+                        <img src="Icons/logout.svg">
+                    </div>
+                </button>
+            </div>
         </div>
     </div>
 
@@ -25,23 +35,24 @@
 
         <div id="info"></div>
 
-        <div id="playerlist"></div>
+        <div id="playerlist">Loading</div>
 
-        <div id="turntext"></div>
-        <div id="timertext"></div>
+        <div id="turntext">Loading</div>
+        <div id="timertext">Loading</div>
 
-        <div id="totaltext"></div>
+        <div id="totalDealer"></div>
+        <div id="totalPlayer"></div>
 
         <div class="flex" id="BetContainer">
             <input placeholder="bet" type="number">
-            <button>Place</button>
+            <button class="btnNormal" >Place</button>
         </div>
 
         <div class="flex" id="actions">
-            <button id="hit">Hit</button>
-            <button id="stand">Stand</button>
-            <button id="double">Double</button>
-            <button id="split">split</button>
+            <button class="btnNormal" id="hit">Hit</button>
+            <button class="btnNormal" id="stand">Stand</button>
+            <button class="btnNormal" id="double">Double</button>
+            <button class="btnNormal" id="split">split</button>
         </div>
 
     </div>

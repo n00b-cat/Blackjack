@@ -5,28 +5,32 @@
 
 body {
     font-family: "Outfit", sans-serif;
-    color: rgb(22, 22, 22);
+    color: #4c4f69;
     font-style: normal;
-    font-weight: 500;
-    background-color: #e6e9ef;
+    font-weight: 400;
+    background-color: #eff1f5;
     font-size: 16px;
 }
 
-a {
+button {
     all: unset;
-    color: black;
-    transition: all 0.5s;
+    cursor: pointer;
+}
+
+a {
+    text-decoration: none;
+    color: #1e66f5;
+    cursor: pointer;
 }
 
 a:hover {
-    cursor: pointer;
     color: #1e66f5;
-    transition: all 0.1s;
+    text-decoration: underline;
 }
 
 h1 {
     margin: 0;
-    font-weight: bolder;
+    font-weight: bold;
     font-size: 24px;
 }
 
@@ -42,7 +46,6 @@ hr {
 
 table {
     border-collapse: collapse;
-    background-color: purple;
 }
 
 td,
@@ -68,31 +71,53 @@ tr:nth-child(odd) {
 
 .flex {
     display: flex;
-    gap: 10px;
-}
-
-.Selected {
-    text-decoration: underline;
+    gap: 15px;
 }
 
 /* --- Navbar styles --- */
 
 .navbar {
-    background-color: #eff1f5;
     padding: 10px;
     display: flex;
-    justify-content: left;
-    gap: 100px;
+    justify-content: space-between;
     font-size: 18px;
+    align-items: center;
 
-    button {
-        all: unset;
-        background-color: #eff1f5;
+    button,
+    a {
+        color: #4c4f69;
+        padding: 7px;
+        border-radius: 5px;
     }
 
-    button:hover {
-        cursor: pointer;
+    button:hover,
+    a:hover {
+        text-decoration: none;
+        background-color: #e6e9ef;
     }
+}
+
+.dropDownWrapper {
+    position: relative;
+}
+
+#userDropdownMenu {
+    display: none;
+    position: absolute;
+    right: 0;
+    z-index: 1;
+    border-radius: 4px;
+    overflow: hidden;
+    background-color: #eff1f5;
+}
+
+#userDropdownMenu button {
+    width: 100%;
+    padding: 10px;
+}
+
+#userDropdownMenuF button:hover {
+    background-color: #e6e9ef;
 }
 
 /* --- Game styles --- */
@@ -101,9 +126,16 @@ tr:nth-child(odd) {
     position: relative;
     width: 80%;
     height: 80%;
-}
 
-/* Canavas */
+    div {
+        position: absolute;
+        background-color: #eff1f5;
+        text-align: center;
+        font-weight: bold;
+        padding: 5px;
+        border-radius: 5px;
+    }
+}
 
 #canvas {
     background-color: #40a02b;
@@ -119,71 +151,66 @@ tr:nth-child(odd) {
 }
 
 #help {
-    all: unset;
-    border: solid black 1px;
     padding: 5px 10px;
     position: absolute;
-    background-color: white;
     top: 0;
     right: 0;
     color: black;
-}
-
-#help:hover {
-    cursor: pointer;
+    font-weight: bold;
+    background-color: #eff1f5;
 }
 
 #playerlist {
     top: 25px;
     left: 25px;
-    position: absolute;
+    text-align: left;
 }
 
-#totaltext {
+#totalPlayer,
+#totalDealer {
     bottom: 150px;
-    width: 100%;
-    text-align: center;
-    position: absolute;
+    width: 20px;
+    height: 20px;
+    border-radius: 5px;
+    left: 55%;
+}
+
+#totalDealer {
+    bottom: 350px;
 }
 
 #timertext {
+    left: 50%;
+    transform: translateX(-50%);
     top: 50px;
-    width: 100%;
-    text-align: center;
-    position: absolute;
 }
 
 #turntext {
+    left: 50%;
+    transform: translateX(-50%);
     top: 25px;
-    width: 100%;
-    text-align: center;
-    position: absolute;
 }
 
 #info {
     color: #d20f39;
-    background-color: rgba(0, 0, 0, 0.619);
-    font-weight: 600;
+    left: 50%;
+    transform: translateX(-50%);
     font-size: 18px;
     bottom: 200px;
-    text-align: center;
-    position: absolute;
 }
 
 #actions {
+    background-color: transparent;
     display: none;
     bottom: 25px;
     width: 100%;
-    text-align: center;
-    position: absolute;
 }
 
 #BetContainer {
+    background-color: transparent;
     display: none;
-    position: absolute;
     bottom: 25px;
     width: 100%;
-    text-align: center;
 
     input {
         all: unset;
@@ -192,18 +219,17 @@ tr:nth-child(odd) {
         height: 20px;
         padding: 10px;
     }
-
-    button {
-        all: unset;
-        background-color: white;
-        width: 40px;
-        height: 40px;
-    }
-
-    button:hover {
-        cursor: pointer;
-    }
 }
+
+.btnNormal {
+    background-color: white;
+    padding: 5px;
+    border: #7c7f93 1px solid;
+    border-radius: 5px;
+    width: 70px;
+    text-align: center;
+}
+
 
 /* --- Login & Signup pages --- */
 
@@ -216,7 +242,7 @@ tr:nth-child(odd) {
 }
 
 form {
-    background-color: #eff1f5;
+    box-shadow: rgba(0, 0, 0, 0.25) 0px 4px 6px, rgba(0, 0, 0, 0.1) 0px 5px 7px;
     max-width: 350px;
     width: 50vw;
     padding: 25px 40px;
@@ -228,7 +254,6 @@ form {
     height: min-content;
 
     button {
-        all: unset;
         font-size: 18px;
         color: white;
         background-color: #1e66f5;
@@ -236,13 +261,9 @@ form {
         border-radius: 8px;
     }
 
-    button:hover {
-        cursor: pointer;
-    }
-
     input {
         all: unset;
-        border: #dce0e8, solid 2px;
+        border: #dce0e8 solid 2px;
         border-radius: 4px;
         text-align: left;
         padding: 10px 18px;
@@ -256,12 +277,20 @@ form {
     }
 }
 
-.leaderboardMenu {
-    width: min-content;
-    padding: 10px;
+/* Leaderboard Styling */
+
+.leaderboardContainer {
+    display: flex;
+    justify-content: center;
     margin-top: 10px;
-    background-color: #eff1f5;
+    gap: 50px;
+}
+
+.leaderboardStyle {
+    padding: 10px;
+    border-radius: 7px;
     display: flex;
     flex-direction: column;
     align-items: center;
+    box-shadow: rgba(0, 0, 0, 0.25) 0px 4px 6px, rgba(0, 0, 0, 0.1) 0px 5px 7px;
 }

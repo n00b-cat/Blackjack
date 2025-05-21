@@ -155,9 +155,13 @@ io.on('connection', async (socket) => {
             if (action == "hit") {
                 p.msg = "hit </br>"
                 p.hand.push(deck.pop());
-                servertime = 5
-                console.log(calculateTotal(p.hand))
-                p.total = calculateTotal(p.hand)
+                p.total = countTotal(p.hand)
+                if (dealer.Total > 21) {
+                    dealer.Status = "busted"
+                    servertime = 0
+                } else {
+                    servertime = 5
+                }
             }
             else if (action == "stand") {
                 p.msg = "stand </br>"
@@ -206,7 +210,11 @@ setInterval(() => {
         return false;
     });
 
-    if (servertime <= 0 && gameongoing == false) {
+    Object.values(splayer).forEach(player => {
+        player.total = countTotal(player.hand)
+    });
+
+    if (servertime < 0 && gameongoing == false) {
         x = 0;
         gameongoing = true;
         newdeck();
@@ -214,13 +222,17 @@ setInterval(() => {
         deal_cards();
     }
 
-    if (servertime <= 0 && gameongoing == true) {
+    if (servertime < 0 && gameongoing == true) {
+        console.log(gameongoing)
+        console.log("test")
         if (x < Object.keys(playersingame).length) {
             serverturn = playersingame[Object.keys(playersingame)[x]].name;
             x++;
             servertime = 5;
             console.log("Turn ended")
-        } else {
+        } else if (dealer.Status != "idle") {
+            game_end()
+        } else {            
             serverturn = "dealer"
             dealerturn()
         }
@@ -268,22 +280,20 @@ function deal_cards() {
             for (let i = 0; i < 2; i++) {
                 player.hand.push(deck.pop());
             }
-            calculateTotal(player.hand)
+            countTotal(player.hand)
             playersingame[id] = player;
         }
     });
     dealer.Hand.push(deck.pop())
     dealer.Hand.push(deck.pop())
-    console.log(dealer.Hand[0])
 
-    io.emit('dealercards', { dealerhand: [dealer.Hand[0]] })
+    io.emit('dealercards', { dealerhand: [dealer.Hand[0]], dealertotal: Math.min(dealer.Hand[0].number, 10)});
     io.emit('update', { servertime, serverturn });
 }
 
-function calculateTotal(hand) {
+function countTotal(hand) {
     let total = 0;
     let aces = 0;
-    console.log(hand)
     for (let card of hand) {
         if (card.number === 1) {
             total += 11;
@@ -300,45 +310,65 @@ function calculateTotal(hand) {
 }
 
 function dealerturn() {
-    servertime = 5
-    dealer.Total = calculateTotal(dealer.Hand);
+    servertime = 2
+    dealer.Total = countTotal(dealer.Hand);
+    io.emit('dealercards', { dealerhand: dealer.Hand, dealertotal: dealer.Total });
 
-    io.emit('dealercards', { dealerhand: [dealer.Hand], dealertotal: dealer.Total });
-
-    console.log("--------------")
-    console.log(dealer.Total)
+    console.log("--- Dealers Turn ---")
 
     if (dealer.Total < 17) {
         console.log("new card")
         dealer.Hand.push(deck.pop());
-        dealerturn()
-    } else {
-        game_end()
+    }
+    else {
+        if (dealer.Total > 21) {
+            dealer.Status = "busted"
+        } else {
+            dealer.Status = "done"
+        }
     }
 }
 
 function game_end() {
+    servertime = 10
     gameongoing = false;
     serverturn = null;
 
+    console.log("--- Players ---")
+    console.log(splayer)
+    console.log("-- Dealer ---")
+    console.log(dealer)
+
     Object.entries(playersingame).forEach(async ([id]) => {
         const p = splayer[id];
-        if (p.status == "playing" && p.total > dealer.Total || p.status == "playing" && dealer.Status == "busted") {
-            p.chips += p.bet * 2;
-            p.msg = "You Won!"
+        if (p.status == "playing") {
+            if (p.total > dealer.Total || dealer.Status == "busted") {
+                p.chips += p.bet * 2;
+                p.msg = "You Won! :D"
+            } else {
+                p.msg = "Dealer Wins :("
+            }
+        } else {
+            p.msg = "You Busted! :("
         }
         p.bet = 0;
         p.hand = [];
         p.status = "idle"
-        p.msg = "Dealer Wins :("
 
         // update database
         await runQuery("update Players set Chips=? where Username=?", [p.chips, p.name]);
     });
-    dealer.Hand = []
+
+    dealer.Status = "idle"
+    dealer.Hand = [];
     playersingame = {};
 
-    io.emit('dealercards', {dealerhand: [dealer.Hand]})
+    io.emit('dealercards', { dealerhand: dealer.Hand, dealertotal: dealer.Total })
     io.emit('update', { servertime, serverturn });
     io.emit('updatePlayers', splayer);
+
+    console.log("--- Players ---")
+    console.log(splayer)
+    console.log("-- Dealer ---")
+    console.log(dealer)
 }

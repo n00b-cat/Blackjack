@@ -7,7 +7,8 @@ const stand = document.getElementById("stand");
 const double = document.getElementById("double");
 const split = document.getElementById("split");
 const info = document.getElementById("info")
-const totaltext = document.getElementById("totaltext")
+const totalPlayer = document.getElementById("totalPlayer")
+const totalDealer = document.getElementById("totalDealer")
 const actionsinteractions = document.getElementById("actions")
 const betcontainer = document.getElementById("BetContainer")
 const betamount = betcontainer.querySelector("input")
@@ -52,12 +53,34 @@ let dealertotal = 0
 socket.on('update', (update) => {
     turn = update.serverturn;
     timer = update.servertime;
+
+    if (turn == null) {
+        turntext.innerHTML = "Waiting for bets"
+    } else {
+        turntext.innerHTML = turn + "'s turn"
+    }
+    timertext.innerHTML = "time left: " + timer
+
+    if (turn == null) {
+        betcontainer.style.display = "block"
+        actionsinteractions.style.display = "none"
+    }
+    else if (players[socket.id] && turn == players[socket.id].name) {
+        betcontainer.style.display = "none"
+        actionsinteractions.style.display = "block"
+    }
+    else {
+        betcontainer.style.display = "none"
+        actionsinteractions.style.display = "none"
+    }
 });
 
 socket.on('dealercards', (update) => {
     console.log(update)
     dealerhand = update.dealerhand
     dealertotal = update.dealertotal
+    console.log(dealertotal)
+    totalDealer.innerHTML = dealertotal
 })
 
 betcontainer.querySelector("button").addEventListener("click", () => {
@@ -128,31 +151,19 @@ function draw() {
                 card.y = canvas.height - 230;
                 card.draw(ctx);
             }
-            totaltext.innerHTML = "Total: " + player.total
+            totalPlayer.innerHTML = player.total
         }
     }
 
-    if (dealerhand) {
+    if (dealerhand && dealerhand.length > 0) {
         for (let i = 0; i < dealerhand.length; i++) {
+            console.log(dealerhand.length)
             let card = new Card(dealerhand[i].suit, dealerhand[i].number, 1, 1);
 
             card.x = (canvas.width / 2) - ((card.width * dealerhand.length) / 2) - (((dealerhand.length - 1) * 10) / 2) + (card.width * i) + (i * 10);
             card.y = canvas.height - 600;
             card.draw(ctx);
         }
-    }
-
-    if (turn == null) {
-        betcontainer.style.display = "block"
-        actionsinteractions.style.display = "none"
-    }
-    else if (players[socket.id] && turn == players[socket.id].name) {
-        betcontainer.style.display = "none"
-        actionsinteractions.style.display = "block"
-    }
-    else {
-        betcontainer.style.display = "none"
-        actionsinteractions.style.display = "none"
     }
 
     playerlist.innerHTML = ""
@@ -167,13 +178,6 @@ function draw() {
         if (player.hand)
             playerlist.innerHTML += "Status: " + player.status + "</br></br>";
     }
-
-    if (turn == null) {
-        turntext.innerHTML = "Waiting for bets"
-    } else {
-        turntext.innerHTML = turn + "'s turn"
-    }
-    timertext.innerHTML = "time left: " + timer
 }
 
 // game loop / loop
