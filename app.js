@@ -1,7 +1,8 @@
+// Express
 const express = require('express');
 const app = express();
 
-// socket.io
+// Socket.io
 const { createServer } = require('http');
 const server = createServer(app);
 const { Server } = require('socket.io');
@@ -14,6 +15,34 @@ app.use('/node_modules', express.static('node_modules'));
 
 app.use(express.json());
 
+// Bycrypt (Hashing passwords)
+const bcrypt = require('bcrypt');
+
+// Mariadb (DB)
+const mariadb = require('mariadb');
+const pool = mariadb.createPool({
+    host: 'localhost',
+    database: 'Blackjack',
+    user: 'blackjackuser',
+    password: 'password',
+    connectionLimit: 5
+});
+
+// Query function
+async function runQuery(sql, param) {
+    let conn;
+    try {
+        conn = await pool.getConnection();
+        return await conn.query(sql, param);
+    } catch (err) {
+        console.error(err);
+        throw err;
+    } finally {
+        if (conn) conn.end();
+    }
+}
+
+// Login and Sign up
 app.post('/login', async (req, res) => {
     const { username, password } = req.body;
     const users = await runQuery("SELECT * FROM Players WHERE Username = ?", [username])
@@ -33,8 +62,6 @@ app.post('/login', async (req, res) => {
         return res.json({ success: false, message: "User not found" });
     }
 });
-
-const bcrypt = require('bcrypt');
 
 app.post('/signup', async (req, res) => {
     const { username, password, password2 } = req.body;
@@ -62,41 +89,27 @@ app.post('/signup', async (req, res) => {
     }
 });
 
+// Leaderboard Stats
 app.get("/leaderboard", async (req, res) => {
     const data = await runQuery("SELECT * FROM Players ORDER BY Chips DESC")
     return res.json(data)
 });
 
-const mariadb = require('mariadb');
-const { Console } = require('console');
-const pool = mariadb.createPool({
-    host: 'localhost',
-    database: 'Blackjack',
-    user: 'blackjackuser',
-    password: 'password',
-    connectionLimit: 5
+// history Stats
+app.post("/history", async (req, res) => {
+    const DBPlayer = await loadPlayer(req.body.username);
+
+    const data = await runQuery("SELECT * FROM Games WHERE PlayerID = ? ORDER BY Date DESC", [DBPlayer.ID])
+    return res.json(data)
 });
 
-async function runQuery(sql, param) {
-    let conn;
-    try {
-        conn = await pool.getConnection();
-        return await conn.query(sql, param);
-    } catch (err) {
-        console.error(err);
-        throw err;
-    } finally {
-        if (conn) conn.end();
-    }
-}
-
+// Get DBPlayer from username
 async function loadPlayer(username) {
     const players = await runQuery("SELECT * FROM Players WHERE Username = ?", [username])
     return players[0];
 }
 
 const splayer = {};
-let number = 1
 
 io.on('connection', async (socket) => {
     const username = socket.request._query['username']
@@ -125,15 +138,18 @@ io.on('connection', async (socket) => {
 
     socket.on("bet", (betamount) => {
         if (splayer[socket.id].chips < betamount) {
-            splayer[socket.id].msg = "not enough chips </br>"
+            splayer[socket.id].msg = "Not enough chips </br>"
         }
         else if (splayer[socket.id].bet > 0) {
-            splayer[socket.id].msg = "already placed a bet </br>"
+            splayer[socket.id].msg = "Already placed a bet </br>"
+        }
+        else if (betamount < 0) {
+            splayer[socket.id].msg = "Invalid amount </br>"
         }
         else if (gameongoing == true) {
-            splayer[socket.id].msg = "game already started </br>"
+            splayer[socket.id].msg = "Game already started </br>"
         }
-        else {
+        else if (betamount > 0) {
             splayer[socket.id].chips -= betamount;
             splayer[socket.id].bet = betamount;
             splayer[socket.id].status = "playing"
@@ -156,8 +172,8 @@ io.on('connection', async (socket) => {
                 p.msg = "hit </br>"
                 p.hand.push(deck.pop());
                 p.total = countTotal(p.hand)
-                if (dealer.Total > 21) {
-                    dealer.Status = "busted"
+                if (p.total > 21) {
+                    p.status = "busted"
                     servertime = 0
                 } else {
                     servertime = 5
@@ -165,7 +181,7 @@ io.on('connection', async (socket) => {
             }
             else if (action == "stand") {
                 p.msg = "stand </br>"
-                servertime = 1
+                servertime = 0
             }
             else if (action == "double") {
                 p.msg = "double </br>"
@@ -203,7 +219,7 @@ setInterval(() => {
     io.emit('updatePlayers', splayer);
 
     Object.values(splayer).some(player => {
-        if (player.bet > 0 || gameongoing == true) {
+        if (player.bet > 0 && servertime > 0 || gameongoing == true && servertime > 0) {
             servertime--;
             return true;
         }
@@ -214,7 +230,7 @@ setInterval(() => {
         player.total = countTotal(player.hand)
     });
 
-    if (servertime < 0 && gameongoing == false) {
+    if (servertime <= 0 && gameongoing == false) {
         x = 0;
         gameongoing = true;
         newdeck();
@@ -222,7 +238,7 @@ setInterval(() => {
         deal_cards();
     }
 
-    if (servertime < 0 && gameongoing == true) {
+    if (servertime <= 0 && gameongoing == true) {
         console.log(gameongoing)
         console.log("test")
         if (x < Object.keys(playersingame).length) {
@@ -232,7 +248,7 @@ setInterval(() => {
             console.log("Turn ended")
         } else if (dealer.Status != "idle") {
             game_end()
-        } else {            
+        } else {
             serverturn = "dealer"
             dealerturn()
         }
@@ -287,8 +303,9 @@ function deal_cards() {
     dealer.Hand.push(deck.pop())
     dealer.Hand.push(deck.pop())
 
-    io.emit('dealercards', { dealerhand: [dealer.Hand[0]], dealertotal: Math.min(dealer.Hand[0].number, 10)});
+    io.emit('dealercards', { dealerhand: [dealer.Hand[0]], dealertotal: Math.min(dealer.Hand[0].number, 10) });
     io.emit('update', { servertime, serverturn });
+    io.emit('updatePlayers', splayer);
 }
 
 function countTotal(hand) {
@@ -340,20 +357,46 @@ function game_end() {
     console.log(dealer)
 
     Object.entries(playersingame).forEach(async ([id]) => {
+        let gameResult = null
+        let gameBalance = 0
+
         const p = splayer[id];
         if (p.status == "playing") {
             if (p.total > dealer.Total || dealer.Status == "busted") {
                 p.chips += p.bet * 2;
                 p.msg = "You Won! :D"
-            } else {
+
+                gameResult = "Won"
+                gameBalance = "+" + p.bet
+
+            } else if (p.total == dealer.total) {
+                p.chips += p.bet
+                p.msg = "Push"
+                gameResult = "Push"
+            }
+            else {
                 p.msg = "Dealer Wins :("
+                gameResult = "Dealer won (Lost)"
+                gameBalance = -p.bet
             }
         } else {
             p.msg = "You Busted! :("
+            gameResult = "Busted (Lost)"
+            gameBalance = -p.bet
         }
         p.bet = 0;
         p.hand = [];
         p.status = "idle"
+
+        const DBPlayer = await loadPlayer(p.name);
+
+        console.log(DBPlayer.ID)
+        console.log(gameResult)
+        console.log(gameBalance)
+
+        // Logs the game
+        sql = "INSERT INTO Games (PlayerID, Balance, Result) VALUES (?, ?, ?)";
+        await runQuery(sql, [DBPlayer.ID, gameBalance, gameResult]);
 
         // update database
         await runQuery("update Players set Chips=? where Username=?", [p.chips, p.name]);

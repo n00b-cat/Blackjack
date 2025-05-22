@@ -12,7 +12,7 @@ class Card {
     }
 
     draw(ctx) {
-        ctx.drawImage(this.image, (this.number - 1) * 55 + (this.number - 1), 0, this.width, this.height, this.x, this.y, this.width, this.height);
+        ctx.drawImage(this.image, (this.number - 1) * 55 + (this.number - 1), 0, this.width, this.height, this.x, this.y, 110, 152);
     }
 }
 

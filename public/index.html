@@ -12,40 +12,47 @@
     <div class="navbar">
         <div class="flex">
             <a href="/">Game</a>
-            <a href="leaderboard.html">Leaderboard</a>
+            <a href="leaderboard.html">Leaderboards</a>
+            <a href="tutorial.html">Tutorial</a>
         </div>
 
         <div class="dropDownWrapper">
             <button id="userDropdownBtn"></button>
             <div id="userDropdownMenu">
+                
+                <button id="History">
+                    <div class="flex">
+                        <div>History</div>
+                        <img src="Icons/history.svg">
+                    </div>
+                </button>
+
                 <button id="Logout">
                     <div class="flex">
                         <div>Logout</div>
                         <img src="Icons/logout.svg">
                     </div>
                 </button>
+
             </div>
         </div>
     </div>
 
     <div class="game-container">
         <canvas id="canvas" width="800" height="600"></canvas>
-
-        <button id="help">?</button>
-
-        <div id="info"></div>
-
         <div id="playerlist">Loading</div>
-
+        
         <div id="turntext">Loading</div>
         <div id="timertext">Loading</div>
 
+        <div id="info"></div>
+        
         <div id="totalDealer"></div>
         <div id="totalPlayer"></div>
 
         <div class="flex" id="BetContainer">
             <input placeholder="bet" type="number">
-            <button class="btnNormal" >Place</button>
+            <button class="btnNormal">Place</button>
         </div>
 
         <div class="flex" id="actions">
@@ -53,86 +60,6 @@
             <button class="btnNormal" id="stand">Stand</button>
             <button class="btnNormal" id="double">Double</button>
             <button class="btnNormal" id="split">split</button>
-        </div>
-
-    </div>
-
-    <div id="tutorial">
-        <h1>How to play blackjack</h1>
-        <hr>
-
-        <h2>Start</h2>
-        <div>
-            In blackjack start by the players placing bets, after bets are placed the dealer start dealing cards around
-            the
-            table until all players inculding the dealer has 2 cards. All player cards are faceup, while the first
-            dealer
-            card is shown but the seccond is facedown.
-        </div>
-        <hr>
-
-        <h2>Goal of the game</h2>
-        <div>
-            In blackjack you play aganist the dealer and not the other players, the goal of the game is to get a hand
-            (all
-            the cards you have) to be worth 21. If you have over 21 you "bust" meaning you lose automatically.
-        </div>
-        <hr>
-
-        <h2>Cards</h2>
-        <div>
-            In blackjack cards have their numbers as their worth and, all cards without numbers (king, queen, jack) all
-            count as 10. The A is a little more special as it can have the value of a 1 or 11. A hand with A and 5 would
-            be
-            a "soft" 16.
-        </div>
-        <hr>
-
-        <h2>Turns</h2>
-        <div>
-            <div>
-                Then one player at the time can decide what they want to do on their turn. there are 4 possible
-                actions in
-                blackjack you can do on your turn, "hit", "stand", "dobble" and "split"
-            </div>
-            <hr>
-
-            <div>**Hit:**</div>
-            <div>
-                If the player "hit" they will be delt one more card, then they can decide their action again
-            </div>
-            <hr>
-
-            <div>**Stand:**</div>
-            <div>
-                If the player "stands" they will end their turn.
-            </div>
-            <hr>
-
-            <div>**Dobble:**</div>
-            <div>
-                If the player dobbles, they get one more card just like hit but they also dobble their original bet. but
-                after
-                they have dobbled their turn ends. meaning you cant hit anymore after a dobble.
-            </div>
-            <hr>
-
-            <div>**Split:**</div>
-            <div>
-                Split the player can only do this if they have to identical cards in value. When splitting the players
-                hand is
-                divided into two SEPRART hands, on the new hand the player places a equal bet to the first hand. The
-                hands gets
-                delt one card each. The hands are player invidually where you cando your actions.
-            </div>
-        </div>
-        <hr>
-
-        <h2>Blackjack</h2>
-        <div>
-            Blackjack is the best hand a player can get and its when a player gets 21 on their fist two cards. Blackjack
-            grants a win over a normal 21 but pushes against dealer having blackjack. The payout for winning with a
-            blackjack is 1 and a half times more than u bet or (3 to 2)
         </div>
     </div>
 

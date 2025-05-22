@@ -35,6 +35,10 @@ else {
                 : "Icons/arrow_drop_up.svg";
         });
 
+        document.getElementById("History").addEventListener("click", () => {
+            window.location = "history.html"
+        });
+
         document.getElementById("Logout").addEventListener("click", () => {
             localStorage.clear();
             window.location = "login.html"

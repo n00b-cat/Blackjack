@@ -1,0 +1,142 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Tutorial</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+
+<body>
+    <div class="navbar">
+        <div class="flex">
+            <a href="/">Game</a>
+            <a href="leaderboard.html">Leaderboards</a>
+            <a href="tutorial.html">Tutorial</a>
+        </div>
+
+        <div class="dropDownWrapper">
+            <button id="userDropdownBtn"></button>
+            <div id="userDropdownMenu">
+
+                <button id="History">
+                    <div class="flex">
+                        <div>History</div>
+                        <img src="Icons/history.svg">
+                    </div>
+                </button>
+
+                <button id="Logout">
+                    <div class="flex">
+                        <div>Logout</div>
+                        <img src="Icons/logout.svg">
+                    </div>
+                </button>
+
+            </div>
+        </div>
+    </div>
+
+    <div class="tutorial">
+        <h1>How to play blackjack</h1>
+
+        <div class="column">
+            <h2>Start</h2>
+            <p>
+                Blackjack starts by the players placing bets, after bets are placed the dealer start dealing cards to
+                the
+                players and himself. Everyone gets 2 cards and they are placed faceup, execpt for the seccond dealer's
+                card.
+            </p>
+        </div>
+
+        <div class="column">
+            <h2>Goal of the game</h2>
+            <p>
+                In blackjack you play aganist the dealer / the casino and not the other players, the goal of the game is
+                to
+                get a hand
+                (the cards you have) to be worth 21, But be carefull! If your cards total over 21 you "bust" meaning you
+                lose automatically.
+            </p>
+        </div>
+
+        <div class="column">
+            <h2>Card values</h2>
+            <p class="flex">
+                In blackjack all cards use their number value shown on the card. The cards without numbers (jack,
+                queen,
+                king) all
+                count as 10.
+                <img class="pixel" src="images/tutorial.png">
+            </p>
+
+            <hr>
+
+            <p class="flex"> The ace is a little more special as it's has the vaule of both 1 or 11. A hand with ace and
+                five would
+                be a "soft" 16
+                <br>
+                (soft means that the ace is counted as 11 and can be hit without a problem since it
+                can
+                also
+                be 1 if needed).
+                <img class="pixel" src="images/tutorial2.png">
+            </p>
+        </div>
+
+        <div class="column">
+            <h2>Turns</h2>
+            <div>
+                <p>
+                    Then one player at the time can decide what they want to do on their turn. there are 4 possible
+                    actions in
+                    blackjack you can do on your turn, "hit", "stand", "dobble" and "split"
+                </p>
+
+                <div>Hit</div>
+                <p>
+                    If the player "hit" they will be delt one more card, then they can decide their action again
+                </p>
+
+                <div>Stand</div>
+                <p>
+                    If the player "stands" they will end their turn.
+                </p>
+
+                <div>Dobble</div>
+                <p>
+                    If the player dobbles, they get one more card just like hit but they also dobble their original bet.
+                    but
+                    after
+                    they have dobbled their turn ends. meaning you cant hit anymore after a dobble.
+                </p>
+
+                <div>Split</div>
+                <p>
+                    Split the player can only do this if they have to identical cards in value. When splitting the
+                    players
+                    hand is
+                    divided into two SEPRART hands, on the new hand the player places a equal bet to the first hand. The
+                    hands gets
+                    delt one card each. The hands are player invidually where you cando your actions.
+                </p>
+            </div>
+        </div>
+
+        <div class="column">
+            <h2>Blackjack</h2>
+            <p>
+                Blackjack is the best hand a player can get and its when a player gets 21 on their fist two cards.
+                Blackjack
+                grants a win over a normal 21 but pushes against dealer having blackjack. The payout for winning with a
+                blackjack is 1 and a half times more than u bet or (3 to 2)
+            </p>
+        </div>
+    </div>
+
+    <script src="js/script.js"></script>
+</body>
+
+</html>

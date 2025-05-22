@@ -12,7 +12,6 @@ const totalDealer = document.getElementById("totalDealer")
 const actionsinteractions = document.getElementById("actions")
 const betcontainer = document.getElementById("BetContainer")
 const betamount = betcontainer.querySelector("input")
-const tutorial = document.getElementById("tutorial");
 
 let players = {};
 
@@ -76,10 +75,8 @@ socket.on('update', (update) => {
 });
 
 socket.on('dealercards', (update) => {
-    console.log(update)
     dealerhand = update.dealerhand
     dealertotal = update.dealertotal
-    console.log(dealertotal)
     totalDealer.innerHTML = dealertotal
 })
 
@@ -89,29 +86,26 @@ betcontainer.querySelector("button").addEventListener("click", () => {
     socket.emit("bet", bet)
 });
 
-
-document.getElementById("help").addEventListener("click", () => {
-    console.log("click")
-    if (tutorial.style.display == "none") {
-        tutorial.style.display = "block"
-    } else {
-        tutorial.style.display = "none"
-    }
-})
-
 // canvas
 const canvas = document.getElementById("canvas");
 const ctx = canvas.getContext("2d");
-
 const devicepixelratio = window.devicePixelRatio || 1;
 
-canvas.width = innerWidth * devicepixelratio;
-canvas.height = innerHeight * devicepixelratio;
+function resizeCanvas() {
+    const container = document.querySelector('.game-container');
+    const cssWidth = container.clientWidth;
+    const cssHeight = container.clientHeight;
 
-window.addEventListener("resize", () => {
-    canvas.width = innerWidth * devicepixelratio;
-    canvas.height = innerHeight * devicepixelratio;
-});
+    canvas.style.width = cssWidth + "px";
+    canvas.style.height = cssHeight + "px";
+    canvas.width = cssWidth * devicepixelratio;
+    canvas.height = cssHeight * devicepixelratio;
+    ctx.imageSmoothingEnabled = false;
+}
+
+resizeCanvas();
+
+window.addEventListener("resize", resizeCanvas);
 
 hit.addEventListener("click", () => {
     if (!turn || !players[socket.id]) return;
@@ -137,33 +131,43 @@ split.addEventListener("click", () => {
 function draw() {
     ctx.clearRect(0, 0, canvas.width, canvas.height);
 
+    totalPlayer.style.display = "none";
+    totalDealer.style.display = "none";
+
     if (players[socket.id]) {
         let player = players[socket.id]
-
+        
         info.innerHTML = player.msg;
+        if (player.msg) {
+            info.style.display = "block"
+        } else {
+            info.style.display = "none"
+        }
 
         if (player.hand.length > 0) {
-
             for (let i = 0; i < player.hand.length; i++) {
                 let card = new Card(player.hand[i].suit, player.hand[i].number, 1, 1);
 
-                card.x = (canvas.width / 2) - ((card.width) / 2) - (((player.hand.length - 1) * 12) / 2) + (i * 12);
-                card.y = canvas.height - 230;
+                card.x = Math.round(canvas.width / 2) - Math.round((card.width) / 2) - Math.round(((player.hand.length - 1) * 24) / 2) + (i * 24);
+                card.y = Math.round(canvas.height - 230);
                 card.draw(ctx);
+                totalPlayer.style.left = card.x + - 20 + "px"
             }
             totalPlayer.innerHTML = player.total
+            totalPlayer.style.display = "block";
         }
     }
 
     if (dealerhand && dealerhand.length > 0) {
         for (let i = 0; i < dealerhand.length; i++) {
-            console.log(dealerhand.length)
             let card = new Card(dealerhand[i].suit, dealerhand[i].number, 1, 1);
 
-            card.x = (canvas.width / 2) - ((card.width * dealerhand.length) / 2) - (((dealerhand.length - 1) * 10) / 2) + (card.width * i) + (i * 10);
-            card.y = canvas.height - 600;
+            card.x = Math.round(canvas.width / 2) - Math.round((card.width) / 2) - Math.round(((dealerhand.length - 1) * 24) / 2) + (i * 24);
+            card.y = Math.round(canvas.height - 600);
             card.draw(ctx);
+            totalDealer.style.left = card.x + - 20 + "px"
         }
+        totalDealer.style.display = "block";
     }
 
     playerlist.innerHTML = ""
@@ -174,6 +178,9 @@ function draw() {
         playerlist.innerHTML += "Name: " + player.name + "</br>";
         playerlist.innerHTML += "Chips: " + player.chips + "</br>";
         playerlist.innerHTML += "Bet: " + player.bet + "</br>";
+        if (player.hand.length > 0) {
+            playerlist.innerHTML += "Hand Total: " + player.total + "</br>";
+        }
 
         if (player.hand)
             playerlist.innerHTML += "Status: " + player.status + "</br></br>";
